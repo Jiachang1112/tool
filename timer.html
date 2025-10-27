@@ -1,0 +1,52 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>碼錶 / 倒數 / 番茄鐘</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<style>
+:root{--bg:#0b1020;--card:#121a32;--ink:#dfe7ff;--muted:#a9b4d0;--line:#223055;--brand:#5B8CFF;--radius:18px;--shadow:0 6px 24px rgba(0,0,0,.25)}
+[data-theme="light"]{--bg:#f7f9ff;--card:#fff;--ink:#0a1433;--muted:#4b5567;--line:#e6ecff;--brand:#3b73ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 system-ui}
+.container{max-width:720px;margin:0 auto;padding:26px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+select,input{border:1px solid var(--line);background:#0d1736;color:var(--ink);border-radius:12px;padding:10px 12px}
+[data-theme="light"] select,[data-theme="light"] input{background:#f2f6ff}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 14px;cursor:pointer}
+.btn:hover{border-color:var(--brand)}
+.screen{font-weight:900;font-size:56px;letter-spacing:2px;text-align:center;margin:12px 0}
+.mini{color:var(--muted);font-size:12px;text-align:center}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+</style></head><body>
+<div class="container">
+  <div class="head">
+    <div style="font-weight:800;display:flex;gap:8px;align-items:center"><i class="bi bi-stopwatch" style="color:var(--brand)"></i>碼錶 / 倒數 / 番茄鐘</div>
+    <button class="btn" id="btn-theme"><i class="bi bi-moon-stars"></i></button>
+  </div>
+  <div class="card">
+    <div class="row">
+      <select id="mode"><option value="stopwatch">碼錶</option><option value="countdown">倒數</option><option value="pomodoro">番茄鐘</option></select>
+      <input id="mm" type="number" value="25" min="0" placeholder="分">
+      <input id="ss" type="number" value="0" min="0" placeholder="秒">
+    </div>
+    <div class="screen" id="screen">00:00</div>
+    <div class="row" style="justify-content:center">
+      <button class="btn" id="start"><i class="bi bi-play-fill"></i> 開始</button>
+      <button class="btn" id="pause"><i class="bi bi-pause-fill"></i> 暫停</button>
+      <button class="btn" id="reset"><i class="bi bi-arrow-counterclockwise"></i> 重置</button>
+    </div>
+    <div class="mini" id="note">番茄：工作 25 分、休息 5 分</div>
+  </div>
+</div>
+<script>
+const $=s=>document.querySelector(s); const theme=localStorage.getItem('tm_theme')||'dark';
+document.documentElement.dataset.theme=theme; $('#btn-theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;localStorage.setItem('tm_theme',t);};
+let t=null, base=0, remain=0, run=false, stage='work';
+function fmt(n){return n.toString().padStart(2,'0')} function beep(){try{const a=new AudioContext(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(0.12,a.currentTime);o.start();o.stop(a.currentTime+0.2)}catch{}}
+async function notify(msg){try{if(Notification?.permission==='default') await Notification.requestPermission(); if(Notification?.permission==='granted') new Notification(msg);}catch{}}
+function tick(){ if($('#mode').value==='stopwatch'){const d=Math.floor((Date.now()-base)/1000); $('#screen').textContent=fmt(d/60|0)+':'+fmt(d%60);}
+  else{ remain=Math.max(0,remain-1); $('#screen').textContent=fmt(remain/60|0)+':'+fmt(remain%60);
+    if(remain===0){clearInterval(t); run=false; beep(); notify('時間到'); if($('#mode').value==='pomodoro'){ if(stage==='work'){stage='break'; remain=5*60; $('#note').textContent='休息 5 分'; start();} else {stage='work'; remain=(+$('#mm').value*60)+(+$('#ss').value); $('#note').textContent='工作 '+$('#mm').value+' 分';}}}}}
+function start(){if(run) return; run=true; t=setInterval(tick,1000);}
+$('#start').onclick=()=>{ if($('#mode').value==='stopwatch'){ base=Date.now(); start(); } else if($('#mode').value==='countdown'){ remain=(+$('#mm').value*60)+(+$('#ss').value); start(); } else { stage='work'; remain=(+$('#mm').value*60)+(+$('#ss').value); $('#note').textContent='工作 '+$('#mm').value+' 分'; start(); }};
+$('#pause').onclick=()=>{clearInterval(t); run=false}; $('#reset').onclick=()=>{clearInterval(t); run=false; $('#screen').textContent='00:00'; stage='work';};
+</script></body></html>
