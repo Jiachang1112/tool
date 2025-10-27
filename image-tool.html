@@ -1,0 +1,40 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>圖片縮放／壓縮</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<style>
+:root{--bg:#0b1020;--card:#121a32;--ink:#dfe7ff;--muted:#a9b4d0;--line:#223055;--brand:#5B8CFF;--radius:16px}
+[data-theme="light"]{--bg:#f7f9ff;--card:#fff;--ink:#0a1433;--muted:#4b5567;--line:#e6ecff;--brand:#3b73ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui}
+.container{max-width:900px;margin:0 auto;padding:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 14px;cursor:pointer}
+.btn:hover{border-color:var(--brand)}
+input[type=number]{border:1px solid var(--line);background:#0d1736;color:var(--ink);border-radius:12px;padding:10px 12px}
+canvas{max-width:100%;border:1px solid var(--line);border-radius:12px}
+.mini{color:var(--muted);font-size:12px}
+</style></head><body>
+<div class="container">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div style="font-weight:800;display:flex;gap:8px;align-items:center"><i class="bi bi-image" style="color:var(--brand)"></i>圖片縮放／壓縮</div>
+    <button class="btn" id="btn-theme"><i class="bi bi-moon-stars"></i></button>
+  </div>
+  <div class="card">
+    <div class="row">
+      <input id="file" type="file" accept="image/*">
+      <input id="width" type="number" placeholder="寬(px)">
+      <input id="quality" type="number" min="0.1" max="1" step="0.05" value="0.9" placeholder="品質">
+      <button class="btn" id="download"><i class="bi bi-download"></i> 下載 JPEG</button>
+    </div>
+    <div class="mini" id="info" style="margin:8px 0">未載入</div>
+    <canvas id="c" height="0"></canvas>
+  </div>
+</div>
+<script>
+const $=s=>document.querySelector(s); const theme=localStorage.getItem('img_theme')||'dark';
+document.documentElement.dataset.theme=theme; $('#btn-theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;localStorage.setItem('img_theme',t);};
+const file=$('#file'), c=$('#c'), info=$('#info');
+file.onchange=()=>{const f=file.files[0]; if(!f) return; const url=URL.createObjectURL(f); const im=new Image(); im.onload=()=>{const w=+($('#width').value||im.width); const h=Math.round(im.height*(w/im.width)); c.width=w; c.height=h; c.getContext('2d').drawImage(im,0,0,w,h); info.textContent=`原始 ${im.width}×${im.height} → 目標 ${w}×${h}`; URL.revokeObjectURL(url)}; im.src=url;};
+$('#download').onclick=()=>{const q=parseFloat($('#quality').value||0.9); c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='image-compressed.jpg';a.click();},'image/jpeg',q)};
+</script></body></html>
