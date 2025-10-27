@@ -1,0 +1,55 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CSV ⇄ JSON ⇄ 表格</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<style>
+:root{--bg:#0b1020;--card:#121a32;--ink:#dfe7ff;--muted:#a9b4d0;--line:#223055;--brand:#5B8CFF;--radius:16px;--shadow:0 6px 24px rgba(0,0,0,.25);--mono:ui-monospace,Consolas,monospace}
+[data-theme="light"]{--bg:#f7f9ff;--card:#fff;--ink:#0a1433;--muted:#4b5567;--line:#e6ecff;--brand:#3b73ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+.head{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 12px;cursor:pointer}
+.btn:hover{border-color:var(--brand)}
+.grid{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+textarea{width:100%;height:58vh;border:1px solid var(--line);border-radius:12px;background:#0d1736;color:var(--ink);padding:12px;font:14px/1.5 var(--mono)}
+[data-theme="light"] textarea{background:#f2f6ff}
+table{width:100%;border-collapse:collapse} th,td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+.mini{color:var(--muted);font-size:12px}
+</style></head><body>
+<div class="container">
+  <div class="head">
+    <div style="font-weight:800;display:flex;gap:8px;align-items:center"><i class="bi bi-table" style="color:var(--brand)"></i>CSV ⇄ JSON ⇄ 表格</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" id="btn-theme"><i class="bi bi-moon-stars"></i></button>
+      <label class="btn" for="file"><i class="bi bi-upload"></i> 匯入</label><input id="file" type="file" accept=".csv,application/json" style="display:none">
+      <button class="btn" id="btn-dl"><i class="bi bi-download"></i> 下載</button>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="mini" style="margin-bottom:8px">貼上 CSV 或 JSON。</div>
+      <textarea id="src"></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="btn" data-act="csv2table">CSV → 表格</button>
+        <button class="btn" data-act="csv2json">CSV → JSON</button>
+        <button class="btn" data-act="json2csv">JSON → CSV</button>
+        <button class="btn" data-act="clear">清空</button>
+      </div>
+    </div>
+    <div class="card" id="out" style="min-height:60vh"></div>
+  </div>
+</div>
+<script>
+const $=s=>document.querySelector(s); const theme=localStorage.getItem('csv_theme')||'dark';
+document.documentElement.dataset.theme=theme; $('#btn-theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;localStorage.setItem('csv_theme',t);};
+function parseCSV(text){const rows=[];let i=0,c='',row=[],q=false;while(i<text.length){const ch=text[i];if(q){if(ch=='"'&&text[i+1]=='"'){c+='"';i+=2;continue}if(ch=='"'){q=false;i++;continue}c+=ch;i++;continue}else{if(ch=='"'){q=true;i++;continue}if(ch==','){row.push(c);c='';i++;continue}if(ch=='\n'||ch=='\r'){if(ch=='\r'&&text[i+1]=='\n')i++;row.push(c);rows.push(row);row=[];c='';i++;continue}c+=ch;i++;continue}}row.push(c);rows.push(row);return rows;}
+function toCSV(rows){return rows.map(r=>r.map(v=>{const s=String(v??'');return /[",\n\r]/.test(s)?`"${s.replace(/"/g,'""')}"`:s}).join(',')).join('\n')}
+function csv2table(){const rows=parseCSV($('#src').value||''); if(!rows.length){$('#out').innerHTML='';return;} const [head,...body]=rows; const t=['<table><thead><tr>',...head.map(h=>`<th>${h}</th>`),'</tr></thead><tbody>']; body.forEach(r=>{t.push('<tr>'); head.forEach((_,i)=>t.push(`<td>${r[i]??''}</td>`)); t.push('</tr>');}); t.push('</tbody></table>'); $('#out').innerHTML=t.join(''); window._last='table.csv';}
+function csv2json(){const rows=parseCSV($('#src').value||''); if(!rows.length){$('#out').innerHTML='';return;} const [h,...b]=rows; const obj=b.map(r=>Object.fromEntries(h.map((k,i)=>[k,r[i]??'']))); $('#out').innerHTML=`<pre style="white-space:pre-wrap">${escapeHtml(JSON.stringify(obj,null,2))}</pre>`; window._last='output.json';}
+function json2csv(){let j; try{j=JSON.parse($('#src').value||'[]')}catch{alert('JSON 解析失敗');return} if(!Array.isArray(j)){alert('必須是陣列');return} const headers=Array.from(new Set(j.flatMap(o=>Object.keys(o||{})))); const rows=[headers,...j.map(o=>headers.map(h=>o?.[h]??''))]; const csv=toCSV(rows); $('#out').innerHTML=`<pre>${escapeHtml(csv)}</pre>`; window._last='output.csv';}
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
+document.querySelectorAll('[data-act]').forEach(b=>b.onclick=({target})=>({csv2table,csv2json,json2csv,clear:()=>{$('#src').value='';$('#out').innerHTML='';}})[target.dataset.act]());
+$('#file').onchange=async e=>{const f=e.target.files[0]; if(!f)return; $('#src').value=await f.text(); $('#out').innerHTML=''; e.target.value='';};
+$('#btn-dl').onclick=()=>{const pre=$('#out pre'); if(pre){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([pre.textContent],{type:'text/plain'}));a.download=window._last||'output.txt';a.click();return} const tbl=$('#out table'); if(tbl){const headers=[...tbl.querySelectorAll('thead th')].map(x=>x.textContent||''); const body=[...tbl.querySelectorAll('tbody tr')].map(tr=>[...tr.children].map(td=>td.textContent||'')); const csv=toCSV([headers,...body]); const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='table.csv';a.click();} };
+</script></body></html>
