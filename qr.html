@@ -1,0 +1,35 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>QR Code 產生器</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<style>
+:root{--bg:#0b1020;--card:#121a32;--ink:#dfe7ff;--muted:#a9b4d0;--line:#223055;--brand:#5B8CFF;--radius:16px}
+[data-theme="light"]{--bg:#f7f9ff;--card:#fff;--ink:#0a1433;--muted:#4b5567;--line:#e6ecff;--brand:#3b73ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui}
+.container{max-width:680px;margin:0 auto;padding:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;text-align:center}
+input{border:1px solid var(--line);background:#0d1736;color:var(--ink);border-radius:12px;padding:10px 12px;width:100%}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 14px;cursor:pointer;margin-top:10px}
+.btn:hover{border-color:var(--brand)}
+canvas{margin:12px 0;max-width:100%}
+</style></head><body>
+<div class="container">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div style="font-weight:800;display:flex;gap:8px;align-items:center"><i class="bi bi-qr-code" style="color:var(--brand)"></i>QR Code 產生器</div>
+    <button class="btn" id="btn-theme"><i class="bi bi-moon-stars"></i></button>
+  </div>
+  <div class="card">
+    <input id="text" placeholder="輸入文字或網址">
+    <input id="size" type="number" min="64" max="1024" value="256" style="margin-top:8px">
+    <button class="btn" id="make">產生</button>
+    <canvas id="c"></canvas>
+    <button class="btn" id="dl"><i class="bi bi-download"></i> 下載 PNG</button>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+const $=s=>document.querySelector(s); const theme=localStorage.getItem('qr_theme')||'dark';
+document.documentElement.dataset.theme=theme; $('#btn-theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;localStorage.setItem('qr_theme',t);};
+const c=$('#c'); $('#make').onclick=()=>{const t=$('#text').value||''; const s=+($('#size').value||256); c.width=s; c.height=s; QRCode.toCanvas(c,t,{width:s,margin:1}); };
+$('#dl').onclick=()=>{c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='qrcode.png';a.click();})};
+</script></body></html>
