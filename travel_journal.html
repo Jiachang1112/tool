@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的旅行日記</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: linear-gradient(135deg, #74b9ff 0%, #0984e3 50%, #00b894 100%); min-height: 100vh; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .nav { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 15px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 30px; }
+        .nav button { background: transparent; border: 2px solid #00b894; color: #00b894; padding: 12px 25px; margin: 0 10px; border-radius: 30px; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s; }
+        .nav button.active, .nav button:hover { background: #00b894; color: white; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,184,148,0.4); }
+        .page { display: none; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 30px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
+        .page.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        input, textarea, select { padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 16px; transition: border-color 0.3s; }
+        input:focus, textarea:focus { outline: none; border-color: #00b894; box-shadow: 0 0 0 3px rgba(0,184,148,0.1); }
+        button[type="submit"] { grid-column: span 2; background: linear-gradient(45deg, #00b894, #00a085); color: white; border: none; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; }
+        .journal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .journal-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: transform 0.3s; }
+        .journal-card:hover { transform: translateY(-10px); }
+        .journal-img { width: 100%; height: 200px; background: linear-gradient(45deg, #74b9ff, #0984e3); display: flex; align-items: center; justify-content: center; color: white; font-size: 3em; }
+        .journal-content { padding: 20px; }
+        .date { color: #666; font-size: 14px; margin-bottom: 10px; }
+        .title { font-size: 1.4em; font-weight: bold; margin-bottom: 10px; color: #2d3436; }
+        .location { color: #00b894; font-weight: bold; margin-bottom: 15px; }
+        .delete-btn { background: #e17055; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; float: right; }
+        .timeline { position: relative; max-width: 800px; margin: 0 auto; }
+        .timeline::before { content: ''; position: absolute; left: 50%; width: 4px; height: 100%; background: linear-gradient(to bottom, #74b9ff, #00b894); transform: translateX(-50%); }
+        .timeline-item { margin: 50px 0; position: relative; }
+        .timeline-content { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 45%; }
+        .timeline-item:nth-child(odd) .timeline-content { margin-left: 55%; }
+        .timeline-item:nth-child(even) .timeline-content { margin-right: 55%; margin-left: 0; }
+        .backup-section { text-align: center; }
+        .backup-btn { background: #fdcb6e; color: #2d3436; border: none; padding: 15px 40px; border-radius: 30px; font-size: 18px; margin: 10px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✈️ 我的旅行日記</h1>
+            <p>記錄生活點滴，追尋每一次冒險</p>
+        </div>
+        
+        <div class="nav">
+            <button onclick="showPage('add')" class="active">➕ 新增日記</button>
+            <button onclick="showPage('journal')">📖 日記列表</button>
+            <button onclick="showPage('timeline')">🕐 時間軸</button>
+            <button onclick="showPage('backup')">💾 備份</button>
+        </div>
+
+        <!-- 新增日記頁 -->
+        <div id="add" class="page active">
+            <form id="journalForm">
+                <input type="date" id="date" required>
+                <input type="text" id="title" placeholder="旅行標題（如：京都賞櫻之旅）" required>
+                <input type="text" id="location" placeholder="地點（如：京都、日本）" required>
+                <textarea id="content" rows="5" placeholder="這趟旅行的故事、感受、心得..."></textarea>
+                <input type="url" id="image" placeholder="圖片連結（選填）">
+                <button type="submit">🌟 發布日記</button>
+            </form>
+        </div>
+
+        <!-- 日記列表頁 -->
+        <div id="journal" class="page">
+            <div id="journals" class="journal-grid"></div>
+        </div>
+
+        <!-- 時間軸頁 -->
+        <div id="timeline" class="page">
+            <div id="timelineContent" class="timeline"></div>
+        </div>
+
+        <!-- 備份頁 -->
+        <div id="backup" class="page">
+            <div class="backup-section">
+                <h2>資料備份與匯入</h2>
+                <button class="backup-btn" onclick="exportData()">📥 下載JSON備份</button>
+                <label for="fileInput" class="backup-btn">📤 從檔案匯入</label>
+                <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="importData(event)">
+                <p style="margin-top: 20px; color: #666;">支援無限筆數記錄，隨時備份到雲端或電腦</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let journals = JSON.parse(localStorage.getItem('travelJournals')) || [];
+        
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            event.target.classList.add('active');
+            if (pageId === 'journal') renderJournals();
+            if (pageId === 'timeline') renderTimeline();
+        }
+        
+        function renderJournals() {
+            const container = document.getElementById('journals');
+            container.innerHTML = '';
+            journals.forEach((journal, index) => {
+                const card = document.createElement('div');
+                card.className = 'journal-card';
+                card.innerHTML = `
+                    <div class="journal-img">${journal.image ? `<img src="${journal.image}" style="width:100%;height:100%;object-fit:cover;">` : '📸'}</div>
+                    <div class="journal-content">
+                        <div class="date">${new Date(journal.date).toLocaleDateString('zh-TW')}</div>
+                        <div class="title">${journal.title}</div>
+                        <div class="location">📍 ${journal.location}</div>
+                        <p style="color: #636e72; line-height: 1.6;">${journal.content.substring(0, 100)}${journal.content.length > 100 ? '...' : ''}</p>
+                        <button class="delete-btn" onclick="deleteJournal(${index})">🗑️ 刪除</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function renderTimeline() {
+            const container = document.getElementById('timelineContent');
+            container.innerHTML = '';
+            // 按日期排序
+            const sortedJournals = [...journals].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sortedJournals.forEach((journal, index) => {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+                item.innerHTML = `
+                    <div class="timeline-content">
+                        <h3>${journal.title}</h3>
+                        <div style="color: #00b894; font-weight: bold; margin-bottom: 10px;">
+                            📍 ${journal.location} | ${new Date(journal.date).toLocaleDateString('zh-TW')}
+                        </div>
+                        <p>${journal.content}</p>
+                        ${journal.image ? `<img src="${journal.image}" style="width:100%; border-radius: 10px; margin-top: 15px;">` : ''}
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        document.getElementById('journalForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const journal = {
+                date: document.getElementById('date').value,
+                title: document.getElementById('title').value,
+                location: document.getElementById('location').value,
+                content: document.getElementById('content').value,
+                image: document.getElementById('image').value
+            };
+            journals.unshift(journal);
+            localStorage.setItem('travelJournals', JSON.stringify(journals));
+            e.target.reset();
+            document.getElementById('date').valueAsDate = new Date();
+            alert('日記發布成功！✨');
+        });
+        
+        function deleteJournal(index) {
+            if (confirm('確定刪除這篇日記？')) {
+                journals.splice(index, 1);
+                localStorage.setItem('travelJournals', JSON.stringify(journals));
+                renderJournals();
+            }
+        }
+        
+        // 備份功能
+        function exportData() {
+            const dataStr = JSON.stringify(journals, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `旅行日記_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+        
+        function importData(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const importedJournals = JSON.parse(e.target.result);
+                journals = [...importedJournals, ...journals];
+                localStorage.setItem('travelJournals', JSON.stringify(journals));
+                alert(`成功匯入 ${importedJournals.length} 篇日記！`);
+                renderJournals();
+                renderTimeline();
+            };
+            reader.readAsText(file);
+        }
+        
+        // 初始化
+        document.getElementById('date').valueAsDate = new Date();
+        renderJournals();
+    </script>
+</body>
+</html>
