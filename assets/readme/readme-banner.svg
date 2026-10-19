@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="450" viewBox="0 0 1280 450" role="img" aria-labelledby="t d">
+  <title id="t">線上小工具箱 tool</title>
+  <desc id="d">10 個純前端小工具：記帳、CSV/JSON、密碼產生、圖片壓縮、QR Code、計時器等</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#450a0a"/>
+      <stop offset="0.55" stop-color="#991b1b"/>
+      <stop offset="1" stop-color="#f87171"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0" x2="1">
+      <stop offset="0" stop-color="#dc2626"/>
+      <stop offset="0.5" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.4" fill="#ffffff" opacity="0.12"/>
+    </pattern>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#050a1f" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="450" fill="url(#bg)"/>
+  <rect width="1280" height="450" fill="url(#dots)"/>
+  <circle cx="1170" cy="40" r="190" fill="#fbbf24" opacity="0.35"/>
+  <circle cx="90" cy="430" r="150" fill="#2563eb" opacity="0.25"/>
+  <circle cx="1230" cy="420" r="120" fill="#22c55e" opacity="0.28"/>
+
+  <g filter="url(#shadow)">
+    <rect x="70" y="56" width="1140" height="338" rx="22" fill="#fdfdfb"/>
+  </g>
+  <rect x="70" y="56" width="1140" height="8" rx="4" fill="url(#bar)"/>
+  <circle cx="106" cy="130" r="7" fill="#e2e5ee"/>
+  <circle cx="106" cy="196" r="7" fill="#e2e5ee"/>
+  <circle cx="106" cy="262" r="7" fill="#e2e5ee"/>
+
+  <rect x="150" y="104" width="292" height="84" rx="6" fill="#ffe56a"/>
+  <text x="162" y="168" font-family="'Noto Serif TC','Noto Serif CJK TC','Songti TC','PMingLiU',serif" font-size="66" font-weight="900" fill="#101a3d">小工具箱</text>
+
+  <text x="152" y="228" font-family="'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif" font-size="24" fill="#4a5163">記帳  ・  JSON  ・  QR Code  ・  圖片壓縮  ・  計時器</text>
+
+  <g font-family="'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif" font-size="17" font-weight="600">
+    <rect x="152" y="258" width="134" height="40" rx="20" fill="#2563eb"/>
+    <text x="219.0" y="284" text-anchor="middle" fill="#ffffff">📒 進階記帳</text>
+    <rect x="300" y="258" width="152" height="40" rx="20" fill="#0b7a5c"/>
+    <text x="376.0" y="284" text-anchor="middle" fill="#ffffff">🔧 JSON／CSV</text>
+    <rect x="466" y="258" width="135" height="40" rx="20" fill="#1e293b"/>
+    <text x="533.5" y="284" text-anchor="middle" fill="#ffffff">🔳 QR Code</text>
+    <rect x="615" y="258" width="120" height="40" rx="20" fill="#dc2626"/>
+    <text x="675.0" y="284" text-anchor="middle" fill="#ffffff">⏱️ 番茄鐘</text>
+  </g>
+  <text x="152" y="350" font-family="'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif" font-size="18" fill="#7a8194">純 HTML ‧ CSS ‧ JavaScript　每個工具一個檔案，資料只存在你的瀏覽器</text>
+
+  <g transform="translate(878 112)">
+    <rect x="26" y="96" width="218" height="128" rx="18" fill="#dc2626" stroke="#450a0a" stroke-width="6"/>
+    <path d="M98 96 V74 a14 14 0 0 1 14 -14 h46 a14 14 0 0 1 14 14 V96" fill="none" stroke="#450a0a" stroke-width="8" stroke-linejoin="round"/>
+    <rect x="26" y="142" width="218" height="14" fill="#991b1b"/><rect x="112" y="134" width="46" height="34" rx="6" fill="#fbbf24" stroke="#450a0a" stroke-width="4"/>
+    <g transform="translate(150 0)"><path d="M0 40 l30 -30 a26 26 0 0 0 34 34 l-30 30 z" fill="#cbd5e1" stroke="#1e293b" stroke-width="5" stroke-linejoin="round"/></g>
+    <circle cx="70" cy="42" r="34" fill="#94a3b8" stroke="#1e293b" stroke-width="5"/><circle cx="70" cy="42" r="13" fill="#fff"/>
+    <g stroke="#94a3b8" stroke-width="12" stroke-linecap="round"><path d="M70 0 v10 M70 74 v10 M28 42 h10 M102 42 h10"/></g>
+  </g>
+</svg>
